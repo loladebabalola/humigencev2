@@ -1,0 +1,1 @@
+"""Humigence CLI package."""
