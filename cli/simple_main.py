@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+import typer
+from rich.console import Console
+import sys
+from pathlib import Path
+
+# Add the parent directory to the path so we can import from cli
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+app = typer.Typer()
+console = Console()
+
+@app.callback(invoke_without_command=True)
+def main(ctx: typer.Context):
+    if ctx.invoked_subcommand is None:
+        console.print("[bold cyan]Humigence — Your AI. Your pipeline. Zero code.[/bold cyan]")
+        console.print("[green]A complete MLOps suite built for makers, teams, and enterprises.[/green]")
+        console.print()
+        console.print("Options:")
+        console.print("1. Supervised Fine-Tuning ✅")
+        console.print("2. RAG Implementation (coming soon)")
+        console.print("3. EnterpriseGPT (coming soon)")
+        console.print("4. Batch Inference (coming soon)")
+        console.print("5. Context Length (coming soon)")
+        console.print()
+        console.print("Starting Supervised Fine-Tuning...")
+        
+        # Simple test without interactive prompts
+        console.print("[yellow]Testing system detection...[/yellow]")
+        try:
+            from utils.device import get_system_info
+            info = get_system_info()
+            console.print(f"✅ System detected: {info['Platform']} with {info['GPU Count']} GPUs")
+        except Exception as e:
+            console.print(f"❌ System detection failed: {e}")
+
+if __name__ == "__main__":
+    app()
+
+

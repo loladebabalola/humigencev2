@@ -1,0 +1,29 @@
+# Unsloth Dual-GPU LoRA Training Requirements
+# Optimized for RTX 5090 (Blackwell architecture)
+
+# Core ML libraries
+torch>=2.1.0
+torchvision
+torchaudio
+transformers>=4.36.0
+datasets>=2.14.0
+accelerate>=0.24.0
+peft>=0.7.0
+bitsandbytes>=0.41.0
+
+# Unsloth (install from source for latest features)
+unsloth @ git+https://github.com/unslothai/unsloth.git
+
+# CLI and UI
+rich>=13.0.0
+inquirer>=3.1.0
+
+# Utilities
+numpy>=1.24.0
+pandas>=2.0.0
+tqdm>=4.65.0
+
+# Optional: for advanced features
+wandb>=0.15.0
+tensorboard>=2.13.0
+

@@ -1,28 +1,43 @@
-# 🧠 Humigence CLI
+---
+library_name: transformers
+tags:
+- fine-tuning
+- lora
+- qlora
+- mlops
+- cli
+- wizard
+- dual-gpu
+- unsloth
+license: mit
+pipeline_tag: text-generation
+---
+
+# Humigence CLI - MLOps Toolkit for LLM Fine-tuning
 
 **Your AI. Your pipeline. Zero code.**
 
-A complete MLOps suite built for makers, teams, and enterprises. Humigence provides zero-config, GPU-aware fine-tuning with surgical precision and complete reproducibility.
+Humigence is a comprehensive MLOps toolkit that provides zero-config, GPU-aware fine-tuning with surgical precision and complete reproducibility. Built for makers, teams, and enterprises who want to fine-tune large language models without the complexity of traditional MLOps setups.
 
-## ✨ Key Features
+## 🚀 Key Features
 
-- 🎯 **Interactive Wizard**: Step-by-step configuration with Basic/Advanced modes
-- 🖥️ **Smart GPU Detection**: Automatic detection and selection of available GPUs
-- 🚀 **Dual-GPU Training**: Multi-GPU support with Unsloth + TorchRun
-- 🧪 **Training Recipes**: QLoRA (4-bit), LoRA (FP16/BF16), Full Fine-tuning
-- 📊 **Intelligent Batching**: Auto-fit batch size to available VRAM
-- 🔄 **Complete Reproducibility**: Config snapshots and reproduce scripts
-- 📈 **Built-in Evaluation**: Curated prompts and quality gates
-- 📦 **Artifact Export**: Structured outputs with run summaries
+- **Interactive Wizard**: Step-by-step configuration with Basic/Advanced modes
+- **Smart GPU Detection**: Automatic detection and selection of available GPUs
+- **Dual-GPU Training**: Multi-GPU support with Unsloth + TorchRun
+- **Training Recipes**: QLoRA (4-bit), LoRA (FP16/BF16), Full Fine-tuning
+- **Complete Reproducibility**: Config snapshots and reproduce scripts
+- **Built-in Evaluation**: Curated prompts and quality gates
+
+## 🎯 What Makes Humigence Different?
+
+Unlike other fine-tuning tools, Humigence focuses on:
+
+1. **Zero-Configuration**: Interactive wizard handles all setup
+2. **Hardware-Aware**: Automatically detects and optimizes for your GPU setup
+3. **Production-Ready**: Complete MLOps pipeline with evaluation and monitoring
+4. **Reproducible**: Every run generates complete artifacts for reproduction
 
 ## 🚀 Quick Start
-
-### Prerequisites
-
-- **GPU**: NVIDIA GPU with CUDA support (RTX 5090, RTX 4080, etc.)
-- **RAM**: 8GB+ recommended
-- **Storage**: 10GB+ for models and datasets
-- **Python**: 3.8+ with PyTorch
 
 ### Installation
 
@@ -48,12 +63,53 @@ python3 cli/main.py
 python3 cli/main.py
 
 # The wizard will guide you through:
-# 1. Model selection
-# 2. Dataset configuration  
-# 3. Training parameters
+# 1. Model selection (Qwen, Phi-2, TinyLlama, or custom)
+# 2. Dataset configuration (JSONL format)
+# 3. Training parameters (learning rate, epochs, etc.)
 # 4. GPU selection (single or multi-GPU)
 # 5. Launch training
 ```
+
+## 📊 Supported Models
+
+Humigence supports a wide range of models:
+
+- **Qwen/Qwen2.5-0.5B**: 77M parameters (recommended for testing)
+- **microsoft/Phi-2**: 839M parameters
+- **TinyLlama/TinyLlama-1.1B-Chat-v1.0**: 369M parameters
+- **Custom Models**: Any HuggingFace model or local path
+
+## 🗂️ Dataset Support
+
+### Supported Formats
+
+- **JSONL Format**: Line-by-line JSON with instruction/output pairs
+- **Auto-Detection**: Scans `~/humigence_data/` directory
+- **Custom Paths**: Specify any local dataset file
+
+### Dataset Format
+
+```json
+{"instruction": "What is machine learning?", "output": "Machine learning is a subset of artificial intelligence..."}
+{"instruction": "Explain quantum computing", "output": "Quantum computing uses quantum mechanical phenomena..."}
+```
+
+## 🖥️ Hardware Requirements
+
+### Minimum Requirements
+- **GPU**: NVIDIA GPU with 8GB+ VRAM
+- **RAM**: 16GB+ system RAM
+- **Storage**: 20GB+ free space
+
+### Recommended Setup
+- **GPU**: RTX 4080/4090/5090 or better
+- **RAM**: 32GB+ system RAM
+- **Storage**: 50GB+ free space
+
+### Multi-GPU Support
+- **Dual-GPU**: RTX 5090 + RTX 5090 (tested)
+- **Memory**: 16GB+ VRAM per GPU recommended
+- **Training**: Automatic TorchRun distribution
 
 ## 🎯 Training Workflow
 
@@ -94,71 +150,6 @@ Humigence intelligently handles GPU selection:
 ✅ Training complete — adapters saved.
 ```
 
-## 📊 Supported Models
-
-- **Qwen/Qwen2.5-0.5B**: 77M parameters (recommended for testing)
-- **microsoft/Phi-2**: 839M parameters
-- **TinyLlama/TinyLlama-1.1B-Chat-v1.0**: 369M parameters
-- **Custom Models**: Any HuggingFace model or local path
-
-## 🗂️ Dataset Support
-
-- **JSONL Format**: Line-by-line JSON with instruction/output pairs
-- **Auto-Detection**: Scans `~/humigence_data/` directory
-- **Custom Paths**: Specify any local dataset file
-- **Sample Datasets**: Includes demo datasets for testing
-
-### Dataset Format
-
-```json
-{"instruction": "What is machine learning?", "output": "Machine learning is a subset of artificial intelligence..."}
-{"instruction": "Explain quantum computing", "output": "Quantum computing uses quantum mechanical phenomena..."}
-```
-
-## 🖥️ Hardware Requirements
-
-### Minimum Requirements
-- **GPU**: NVIDIA GPU with 8GB+ VRAM
-- **RAM**: 16GB+ system RAM
-- **Storage**: 20GB+ free space
-
-### Recommended Setup
-- **GPU**: RTX 4080/4090/5090 or better
-- **RAM**: 32GB+ system RAM
-- **Storage**: 50GB+ free space
-
-### Multi-GPU Support
-- **Dual-GPU**: RTX 5090 + RTX 5090 (tested)
-- **Memory**: 16GB+ VRAM per GPU recommended
-- **Training**: Automatic TorchRun distribution
-
-## 📁 Project Structure
-
-```
-humigence/
-├── cli/
-│   ├── main.py              # Main CLI entry point
-│   ├── config_wizard.py     # Interactive configuration wizard
-│   └── lora_wizard.py       # LoRA-specific wizard
-├── training/
-│   └── unsloth/            # Unsloth integration
-│       ├── wizard.py       # Unsloth training wizard
-│       └── train_lora_dual.py  # Multi-GPU training script
-├── pipelines/
-│   └── lora_trainer.py     # Training pipeline
-├── utils/
-│   ├── device.py           # Hardware detection
-│   ├── dataset_loader.py   # Dataset utilities
-│   └── validators.py       # Data validation
-├── config/
-│   └── default_config.json # Default configuration
-└── runs/                   # Training outputs
-    └── humigence/
-        ├── config.snapshot.json
-        ├── adapters/       # LoRA weights
-        └── artifacts.zip   # Complete export
-```
-
 ## 🔧 Configuration
 
 ### Basic Mode (Recommended)
@@ -179,25 +170,6 @@ Full control over all parameters:
 - Training hyperparameters
 - Data processing options
 - Evaluation settings
-
-## 🚀 Training Modes
-
-### Single-GPU Training
-
-```bash
-# Automatically selected when 1 GPU detected
-🔧 Single GPU detected - using GPU 0: RTX 5090
-🚀 Launching single-GPU training...
-```
-
-### Multi-GPU Training
-
-```bash
-# Prompts when multiple GPUs detected
-🔧 2 GPUs detected - choose training mode
-> Multi-GPU Training (all available GPUs)
-  Single GPU Training (choose specific GPU)
-```
 
 ## 📈 Evaluation & Monitoring
 
@@ -267,7 +239,7 @@ python3 test_gpu_selection.py
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+We welcome contributions! Please see [CONTRIBUTING.md](https://github.com/your-username/humigence/blob/main/CONTRIBUTING.md) for details.
 
 ### Quick Contribution Guide
 
@@ -281,7 +253,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for deta
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/your-username/humigence/blob/main/LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 

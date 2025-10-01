@@ -5,30 +5,133 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "humigence"
 version = "1.0.0"
-description = "Your AI. Your pipeline. Zero code."
-authors = [{name = "Humigence Team"}]
+description = "Your AI. Your pipeline. Zero code. - Complete MLOps toolkit for LLM fine-tuning"
 readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Humigence Team", email = "contact@humigence.ai"}
+]
+maintainers = [
+    {name = "Humigence Team", email = "contact@humigence.ai"}
+]
+keywords = [
+    "machine-learning",
+    "fine-tuning", 
+    "lora",
+    "qlora",
+    "llm",
+    "mlops",
+    "cli",
+    "wizard",
+    "gpu",
+    "unsloth",
+    "transformers",
+    "pytorch"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: User Interfaces",
+]
 requires-python = ">=3.8"
 dependencies = [
-    "typer>=0.9.0",
-    "inquirerpy>=0.3.4",
-    "rich>=13.0.0",
-    "torch>=2.0.0",
-    "accelerate>=0.24.0",
+    "transformers>=4.41.0,<5.0.0",
+    "torch>=2.1.0",
+    "torchvision",
+    "torchaudio",
     "peft>=0.7.0",
-    "bitsandbytes>=0.41.0",
-    "transformers>=4.36.0",
     "datasets>=2.14.0",
-    "psutil>=5.9.0",
-    "huggingface_hub>=0.19.0",
-    "scikit-learn>=1.3.0",
-    "tqdm>=4.65.0",
+    "accelerate>=0.24.0",
+    "bitsandbytes>=0.41.0",
+    "unsloth @ git+https://github.com/unslothai/unsloth.git",
+    "rich>=13.0.0",
+    "inquirer>=3.1.0",
+    "typer>=0.9.0",
+    "numpy>=1.24.0",
     "pandas>=2.0.0",
+    "tqdm>=4.65.0",
+    "psutil>=5.9.0",
+    "pathlib2>=2.3.7",
+    "click>=8.0.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "flake8>=5.0.0",
+    "mypy>=1.0.0",
+]
+docs = [
+    "sphinx>=5.0.0",
+    "sphinx-rtd-theme>=1.0.0",
+    "myst-parser>=0.18.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-username/humigence"
+Documentation = "https://github.com/your-username/humigence/wiki"
+Repository = "https://github.com/your-username/humigence.git"
+"Bug Tracker" = "https://github.com/your-username/humigence/issues"
+"Source Code" = "https://github.com/your-username/humigence"
+
 [project.scripts]
-humigence = "cli.main:app"
+humigence = "cli.main:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["cli*", "config*", "pipelines*", "templates*", "utils*"]
+include = ["cli*", "pipelines*", "utils*", "config*", "training*", "humigence_datasets*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.json", "*.yaml", "*.yml", "*.txt", "*.md"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
