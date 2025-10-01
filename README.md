@@ -1,3 +1,30 @@
+---
+language: en
+library_name: transformers
+license: mit
+tags:
+- finetuning
+- lora
+- qlora
+- unsloth
+- gpu
+- distributed
+datasets:
+- wikitext
+pipeline_tag: text-generation
+model-index:
+- name: Humigence
+  results:
+  - task:
+      type: text-generation
+    dataset:
+      name: WikiText-2
+      type: wikitext
+    metrics:
+      - type: loss
+        value: 1.50
+---
+
 # 🧠 Humigence CLI
 
 **Your AI. Your pipeline. Zero code.**
