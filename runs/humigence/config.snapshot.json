@@ -1,13 +1,35 @@
 {
-  "setup_mode": "basic",
-  "gpu_config": "Single GPU \u2013 GPU 0: NVIDIA GeForce RTX 5090",
-  "base_model": "Qwen/Qwen1.5-0.5B",
-  "dataset_path": "/home/joshua/humigence_data/openassistant_full/oasst1.jsonl",
+  "model_name": "Qwen/Qwen2.5-0.5B",
   "training_recipe": "QLoRA (4-bit NF4)",
-  "learning_rate": "2e-5",
-  "num_train_epochs": "3",
-  "gradient_accumulation_steps": "4",
-  "logging_steps": "10",
-  "save_steps": "100",
-  "timestamp": "2025-09-17T22:50:18.668019"
+  "learning_rate": 0.0002,
+  "num_train_epochs": 1,
+  "per_device_train_batch_size": 2,
+  "gradient_accumulation_steps": 4,
+  "eval_batch_size": 8,
+  "fp16": true,
+  "bf16": false,
+  "multi_gpu": false,
+  "selected_gpus": [
+    0
+  ],
+  "dataset_path": "/home/joshua/humigence_data/wikitext2.jsonl",
+  "data_schema": "instruction_output",
+  "train_val_test_split": [
+    0.8,
+    0.1,
+    0.1
+  ],
+  "split_seed": 42,
+  "max_seq_length": 1024,
+  "lora_r": 16,
+  "lora_alpha": 32,
+  "lora_dropout": 0.05,
+  "logging_steps": 10,
+  "eval_steps": 100,
+  "save_steps": 100,
+  "output_dir": "runs/humigence",
+  "eval_single_gpu": true,
+  "eval_gpu_index": 0,
+  "num_workers": 4,
+  "pin_memory": true
 }

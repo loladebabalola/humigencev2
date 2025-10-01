@@ -1,12 +1,12 @@
 {
-  "run_id": "2025-09-17T22:50:18.668019",
+  "run_id": "2025-09-21T22:47:33",
   "status": "accepted",
-  "model": "Qwen/Qwen1.5-0.5B",
-  "dataset": "/home/joshua/humigence_data/openassistant_full/oasst1.jsonl",
+  "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+  "dataset": "/home/joshua/humigence_data/imdb.jsonl",
   "recipe": "QLoRA (4-bit NF4)",
-  "epochs": "3",
-  "learning_rate": "2e-5",
-  "final_loss": 0.65,
+  "epochs": "1",
+  "learning_rate": "2e-4",
+  "final_loss": null,
   "eval_prompt_count": 5,
-  "timestamp": "2025-09-17 23:31:01"
+  "timestamp": "2025-09-21 22:47:52"
 }
