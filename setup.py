@@ -63,6 +63,7 @@ setup(
     entry_points={
         "console_scripts": [
             "humigence=cli.main:main",
+            "humigence-rag-query=cli.rag_query:app",
         ],
     },
     include_package_data=True,
@@ -85,3 +86,5 @@ setup(
     ],
     zip_safe=False,
 )
+
+

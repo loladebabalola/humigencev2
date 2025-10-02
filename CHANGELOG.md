@@ -108,3 +108,7 @@ To contribute to this changelog:
 - [Documentation](https://github.com/your-username/humigence/wiki)
 - [Issues](https://github.com/your-username/humigence/issues)
 - [Discussions](https://github.com/your-username/humigence/discussions)
+
+
+
+
