@@ -184,6 +184,8 @@ class MultiTenantWizard:
             elif choice == "3":
                 self.tenant_manager_menu()
             elif choice == "4":
+                self.device_management_menu()
+            elif choice == "5":
                 self.advanced_options()
             elif choice == "0":
                 console.print("[bold red]Exiting Multi-Tenant Inference Wizard...[/bold red]")
@@ -324,13 +326,6 @@ class MultiTenantWizard:
             console.print(f"  - {tenant['alias']} (quota={tenant['quota_percentage']}%, priority={tenant['priority']}) → {tenant['endpoint']} {status_icon}")
         
         console.print("• Status: STOPPED")
-        
-        console.print("\n[bold]Quick Actions:[/bold]")
-        console.print("1. Start/Stop Services")
-        console.print("2. Monitor (live dashboard)")
-        console.print("3. Tenant Manager (add/remove/list aliases)")
-        console.print("4. Advanced Options")
-        console.print("0. Exit Wizard")
     
     def show_control_panel(self):
         """Display the main control panel"""
@@ -369,7 +364,8 @@ class MultiTenantWizard:
         console.print("[bold green]1.[/bold green] Start/Stop Services")
         console.print("[bold green]2.[/bold green] Monitor (live dashboard)")
         console.print("[bold green]3.[/bold green] Tenant Manager (add/remove/list aliases)")
-        console.print("[bold green]4.[/bold green] Advanced Options")
+        console.print("[bold green]4.[/bold green] Device Management 📱")
+        console.print("[bold green]5.[/bold green] Advanced Options")
         console.print("\n[bold red]0.[/bold red] Exit Wizard")
     
     def start_stop_services(self):
@@ -551,6 +547,110 @@ class MultiTenantWizard:
             else:
                 console.print("[yellow]⚠️ Invalid option. Please try again.[/yellow]")
     
+    def device_management_menu(self):
+        """Device Management - register and manage client devices"""
+        console.print("\n📱 [bold]Device Management[/bold]")
+        console.print("="*60)
+        
+        # Import device manager
+        try:
+            from device_manager import DeviceManager
+            device_manager = DeviceManager()
+        except ImportError:
+            console.print("[red]❌ Device Manager not available. Please check installation.[/red]")
+            return
+        
+        while True:
+            console.print("\n[bold]Device Management:[/bold]")
+            console.print("[bold green]1.[/bold green] Register New Device")
+            console.print("[bold green]2.[/bold green] List Devices")
+            console.print("[bold green]3.[/bold green] Manage Device")
+            console.print("[bold green]4.[/bold green] Test Device Connection")
+            console.print("[bold green]5.[/bold green] Generate Client Scripts")
+            console.print("[bold red]0.[/bold red] Back to Main Menu")
+            
+            choice = console.input("\n[bold blue]Select an option[/bold blue]: ")
+            
+            if choice == "1":
+                self.register_device_interactive(device_manager)
+            elif choice == "2":
+                device_manager.list_devices()
+            elif choice == "3":
+                self.manage_device_interactive(device_manager)
+            elif choice == "4":
+                self.test_device_connection_interactive(device_manager)
+            elif choice == "5":
+                self.generate_client_scripts_interactive(device_manager)
+            elif choice == "0":
+                break
+            else:
+                console.print("[yellow]⚠️ Invalid option. Please try again.[/yellow]")
+    
+    def update_tenant_interactive(self):
+        """Interactive tenant update"""
+        console.print("\n🔧 [bold]Update Tenant[/bold]")
+        console.print("="*40)
+        
+        # List available tenants
+        if not self.tenant_manager.tenants:
+            console.print("[yellow]⚠️ No tenants available to update.[/yellow]")
+            return
+        
+        console.print("\n[bold]Available Tenants:[/bold]")
+        tenant_list = list(self.tenant_manager.tenants.values())
+        for i, tenant in enumerate(tenant_list, 1):
+            status_icon = "🟢" if tenant.is_active else "🔴"
+            console.print(f"[bold green]{i}.[/bold green] {tenant.alias} {status_icon}")
+        
+        try:
+            tenant_choice = console.input(f"\n[bold blue]Select tenant to update (1-{len(tenant_list)})[/bold blue]: ")
+            tenant_index = int(tenant_choice) - 1
+            
+            if 0 <= tenant_index < len(tenant_list):
+                tenant = tenant_list[tenant_index]
+                self.update_specific_tenant(tenant)
+            else:
+                console.print("[red]❌ Invalid tenant selection.[/red]")
+        except (ValueError, IndexError):
+            console.print("[red]❌ Invalid input. Please enter a valid number.[/red]")
+    
+    def update_specific_tenant(self, tenant):
+        """Update a specific tenant"""
+        console.print(f"\n🔧 [bold]Update Tenant: {tenant.alias}[/bold]")
+        console.print("="*40)
+        
+        # Show current tenant info
+        console.print(f"Current alias: {tenant.alias}")
+        console.print(f"Current name: {tenant.name}")
+        console.print(f"Current quota: {tenant.quota.quota_percentage}%" if tenant.quota else "N/A")
+        console.print(f"Current priority: {tenant.policy.priority}" if tenant.policy else "N/A")
+        console.print(f"Current status: {'Active' if tenant.is_active else 'Inactive'}")
+        
+        # Get new values
+        new_alias = Prompt.ask("New alias", default=tenant.alias)
+        new_name = Prompt.ask("New name", default=tenant.name)
+        new_quota = Prompt.ask("New quota percentage", default=str(tenant.quota.quota_percentage if tenant.quota else 100))
+        new_priority = Prompt.ask("New priority (low/normal/high)", default=tenant.policy.priority if tenant.policy else "normal", choices=["low", "normal", "high"])
+        
+        try:
+            new_quota = float(new_quota)
+            if 0 <= new_quota <= 100:
+                # Update tenant
+                tenant.alias = new_alias
+                tenant.name = new_name
+                if tenant.quota:
+                    tenant.quota.quota_percentage = new_quota
+                if tenant.policy:
+                    tenant.policy.priority = new_priority
+                
+                # Save changes
+                self.tenant_manager.save_tenants()
+                console.print(f"[green]✅ Tenant '{new_alias}' updated successfully![/green]")
+            else:
+                console.print("[red]❌ Quota must be between 0 and 100.[/red]")
+        except ValueError:
+            console.print("[red]❌ Invalid quota value.[/red]")
+    
     def add_tenant_interactive(self):
         """Interactive tenant addition"""
         console.print("\n🔧 [bold]Add New Tenant[/bold]")
@@ -629,6 +729,183 @@ class MultiTenantWizard:
         
         # Save updated profile
         self.profile_manager.save_profile(self.current_profile, profile_data)
+    
+    def register_device_interactive(self, device_manager):
+        """Interactive device registration"""
+        console.print("\n🔧 [bold]Register New Device[/bold]")
+        console.print("="*40)
+        
+        device_name = Prompt.ask("Device name (leave empty for auto-detect)", default="")
+        quota = float(Prompt.ask("Quota percentage (0-100)", default="25"))
+        priority = Prompt.ask("Priority (low/normal/high)", choices=["low", "normal", "high"], default="normal")
+        
+        if not device_name:
+            device_name = None  # Auto-detect
+        
+        try:
+            device_id, api_key = device_manager.register_device(device_name, quota, priority)
+            device_manager.save_devices()
+            
+            console.print(f"\n[bold green]✅ Device registered successfully![/bold green]")
+            console.print(f"[blue]Device ID: {device_id}[/blue]")
+            console.print(f"[blue]API Key: {api_key}[/blue]")
+            console.print(f"[blue]Endpoint: http://localhost:8000/{device_id}[/blue]")
+            
+            # Generate client script
+            script_path = device_manager.generate_client_script(device_id)
+            if script_path:
+                console.print(f"[blue]Client Script: {script_path}[/blue]")
+            
+        except Exception as e:
+            console.print(f"[red]❌ Failed to register device: {e}[/red]")
+    
+    def manage_device_interactive(self, device_manager):
+        """Interactive device management"""
+        if not device_manager.devices:
+            console.print("[yellow]⚠️ No devices registered yet[/yellow]")
+            return
+        
+        console.print("\n🔧 [bold]Manage Device[/bold]")
+        console.print("="*40)
+        
+        # Show devices
+        device_manager.list_devices()
+        
+        device_id = Prompt.ask("\nEnter device ID to manage")
+        device = device_manager.get_device(device_id)
+        
+        if not device:
+            console.print(f"[red]❌ Device '{device_id}' not found![/red]")
+            return
+        
+        console.print(f"\n[bold]Managing: {device.device_name} ({device_id})[/bold]")
+        console.print(f"[blue]API Key: {device.api_key}[/blue]")
+        console.print(f"[blue]Endpoint: {device.endpoint}[/blue]")
+        console.print(f"[blue]Quota: {device.quota_percentage}%[/blue]")
+        console.print(f"[blue]Priority: {device.priority}[/blue]")
+        
+        # Management options
+        console.print("\n[bold]Management Options:[/bold]")
+        console.print("1. Generate new client script")
+        console.print("2. Show credentials")
+        console.print("3. Test connection")
+        console.print("4. Remove device")
+        console.print("0. Back to device management")
+        
+        choice = Prompt.ask("Select option", choices=["0", "1", "2", "3", "4"])
+        
+        if choice == "1":
+            script_path = device_manager.generate_client_script(device_id)
+            console.print(f"[green]✅ Generated client script: {script_path}[/green]")
+        
+        elif choice == "2":
+            creds = device_manager.get_device_credentials(device_id)
+            console.print(f"[green]✅ Device Credentials:[/green]")
+            for key, value in creds.items():
+                console.print(f"[blue]{key}: {value}[/blue]")
+        
+        elif choice == "3":
+            self.test_device_connection_for_device(device_manager, device_id)
+        
+        elif choice == "4":
+            if Confirm.ask(f"Are you sure you want to remove device '{device_id}'?"):
+                device_manager.remove_device(device_id)
+                device_manager.save_devices()
+                console.print(f"[green]✅ Removed device '{device_id}'[/green]")
+    
+    def test_device_connection_interactive(self, device_manager):
+        """Interactive device connection testing"""
+        if not device_manager.devices:
+            console.print("[yellow]⚠️ No devices registered yet[/yellow]")
+            return
+        
+        console.print("\n🔄 [bold]Test Device Connection[/bold]")
+        console.print("="*40)
+        
+        # Show devices
+        device_manager.list_devices()
+        
+        device_id = Prompt.ask("\nEnter device ID to test")
+        self.test_device_connection_for_device(device_manager, device_id)
+    
+    def test_device_connection_for_device(self, device_manager, device_id):
+        """Test connection for a specific device"""
+        device = device_manager.get_device(device_id)
+        if not device:
+            console.print(f"[red]❌ Device '{device_id}' not found![/red]")
+            return
+        
+        console.print(f"\n[bold]Testing connection for {device.device_name}...[/bold]")
+        
+        try:
+            import requests
+            
+            # Test health endpoint
+            health_url = "http://localhost:8000/health"
+            response = requests.get(health_url, timeout=5)
+            
+            if response.status_code == 200:
+                console.print("[green]✅ Server health check passed[/green]")
+            else:
+                console.print(f"[yellow]⚠️ Server health check returned status {response.status_code}[/yellow]")
+            
+            # Test device-specific endpoint
+            device_url = f"{device.endpoint}/v1/chat/completions"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {device.api_key}",
+                "X-Tenant-ID": device_id
+            }
+            
+            test_payload = {
+                "model": "gpt-oss-20b-F16",
+                "messages": [{"role": "user", "content": "Hello, this is a test message."}],
+                "max_tokens": 10,
+                "temperature": 0.7
+            }
+            
+            console.print("[blue]🔄 Sending test message...[/blue]")
+            response = requests.post(device_url, headers=headers, json=test_payload, timeout=30)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if 'choices' in data and len(data['choices']) > 0:
+                    response_text = data['choices'][0].get('message', {}).get('content', '')
+                    console.print(f"[green]✅ Test successful! Response: {response_text}[/green]")
+                else:
+                    console.print("[yellow]⚠️ Test completed but no response text received[/yellow]")
+            else:
+                console.print(f"[red]❌ Test failed with status {response.status_code}[/red]")
+                console.print(f"[red]Response: {response.text}[/red]")
+        
+        except Exception as e:
+            console.print(f"[red]❌ Connection test failed: {e}[/red]")
+    
+    def generate_client_scripts_interactive(self, device_manager):
+        """Interactive client script generation"""
+        if not device_manager.devices:
+            console.print("[yellow]⚠️ No devices registered yet[/yellow]")
+            return
+        
+        console.print("\n📄 [bold]Generate Client Scripts[/bold]")
+        console.print("="*40)
+        
+        # Show devices
+        device_manager.list_devices()
+        
+        device_id = Prompt.ask("\nEnter device ID to generate script for")
+        device = device_manager.get_device(device_id)
+        
+        if not device:
+            console.print(f"[red]❌ Device '{device_id}' not found![/red]")
+            return
+        
+        script_path = device_manager.generate_client_script(device_id)
+        if script_path:
+            console.print(f"[green]✅ Generated client script: {script_path}[/green]")
+            console.print(f"[blue]Usage: python3 {script_path} 'Hello, AI!'[/blue]")
+        else:
+            console.print("[red]❌ Failed to generate client script[/red]")
     
     def advanced_options(self):
         """Step 4: Advanced Options"""

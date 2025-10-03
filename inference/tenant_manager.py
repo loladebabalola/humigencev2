@@ -54,10 +54,29 @@ class TenantManager:
         self.tenants_file = Path(tenants_file)
         self.tenants: Dict[str, Tenant] = {}
         self.tenant_stats: Dict[str, Dict[str, Any]] = {}
-        self.base_endpoint = "http://localhost:8000"
+        self.base_endpoint = self.get_network_endpoint()
         
         # Load existing tenants
         self.load_tenants()
+    
+    def get_network_endpoint(self) -> str:
+        """Get the network endpoint for the server"""
+        try:
+            import socket
+            # Get the primary network interface IP
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+                # Connect to a remote address to determine local IP
+                s.connect(("8.8.8.8", 80))
+                local_ip = s.getsockname()[0]
+            
+            # Use the detected IP with port 8000
+            endpoint = f"http://{local_ip}:8000"
+            console.print(f"[blue]🌐 Using network endpoint: {endpoint}[/blue]")
+            return endpoint
+            
+        except Exception as e:
+            console.print(f"[yellow]⚠️ Could not detect network IP, using localhost: {e}[/yellow]")
+            return "http://localhost:8000"
     
     def load_tenants(self):
         """Load tenants from JSON file"""
