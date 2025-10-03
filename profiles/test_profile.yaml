@@ -1,0 +1,19 @@
+created_at: 1759505218.9963536
+gpu_config:
+  gpu_count: 1
+  gpus:
+  - index: 0
+    name: Test GPU
+model_config:
+  default_model:
+    name: test-model
+  model_count: 1
+profile_name: test_profile
+router_config:
+  entrypoint: localhost:8000
+  strategy: tenant_sticky_then_latency
+tenant_config:
+  tenant_count: 1
+  tenants:
+    default:
+      name: Default

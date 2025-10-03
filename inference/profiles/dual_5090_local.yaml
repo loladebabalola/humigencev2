@@ -1,0 +1,25 @@
+context_window: 131072
+instances:
+- gpu: 0
+  parallel: 4
+  port: 8080
+- gpu: 1
+  parallel: 4
+  port: 8081
+limits:
+  max_concurrent_requests: 8
+  memory_threshold: 0.9
+  request_timeout: 60
+model: /models/gpt-oss-20b/gpt-oss-20b.Q4_K_M.gguf
+monitoring:
+  health_check_interval: 30
+  log_level: INFO
+  metrics_collection: true
+performance:
+  batch_size: 1
+  max_sequence_length: 131072
+  use_cache: true
+  use_flash_attention: true
+router:
+  entrypoint: localhost:8000
+  strategy: tenant_sticky_then_latency

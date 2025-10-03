@@ -1,0 +1,26 @@
+profile: auto_detected
+model: /home/joshua/models/gpt-oss-20b/gpt-oss-20b-F16.gguf
+context_length: 512
+instances:
+- gpu: 0
+  port: 8000
+  parallel: 4
+  binary: /home/joshua/llama.cpp/build/bin/llama-server
+- gpu: 1
+  port: 8001
+  parallel: 4
+  binary: /home/joshua/llama.cpp/build/bin/llama-server
+router:
+  strategy: round_robin
+  entrypoint: localhost:8000
+tenants:
+  tenant_default:
+    quota: 100.0%
+    priority: normal
+    endpoint: http://localhost:8000
+    api_key: null
+  ipad:
+    quota: 50.0%
+    priority: normal
+    endpoint: http://localhost:8000/ipad
+    api_key: null

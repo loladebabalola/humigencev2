@@ -13,6 +13,7 @@ UNSLOTH_AVAILABLE = None  # Will be checked later
 from cli.config_wizard import collect_training_config
 from cli.atomic_eval import app as atomic_eval_app
 from cli.rag_wizard_restored import RAGWizardRestored
+from cli.multi_tenant import MultiTenantWizard
 from rich import print
 from rich.console import Console
 from rich.panel import Panel
@@ -123,7 +124,7 @@ def show_menu():
     print("Options:")
     print("[bold green]1.[/bold green] Supervised Fine-Tuning 🚀")
     print("[bold green]2.[/bold green] RAG Implementation 🔍")
-    print("[bold green]3.[/bold green] Query RAG Profile 💬")
+    print("[bold green]3.[/bold green] Multi-Tenant Inference 🖥️")
     print("[bold yellow]4.[/bold yellow] EnterpriseGPT (coming soon)")
     print("[bold yellow]5.[/bold yellow] Batch Inference (coming soon)")
     print("[bold yellow]6.[/bold yellow] Context Length (coming soon)")
@@ -260,118 +261,6 @@ def launch_training(config, training_mode, gpus):
     
     return False
 
-def query_rag_profile(profile_name: str):
-    """Query a saved RAG profile interactively."""
-    console.print(f"\n🔍 [bold blue]Loading RAG Profile: {profile_name}[/bold blue]")
-    console.print("=" * 60)
-    
-    try:
-        # Load the profile
-        profile_dir = Path.home() / ".humigence" / "rag_profiles"
-        profile_path = profile_dir / f"{profile_name}.json"
-        
-        if not profile_path.exists():
-            console.print(f"❌ [red]Profile not found: {profile_path}[/red]")
-            console.print("Available profiles:")
-            if profile_dir.exists():
-                profiles = list(profile_dir.glob("*.json"))
-                if profiles:
-                    for profile in profiles:
-                        console.print(f"  • {profile.stem}")
-                else:
-                    console.print("  No profiles found")
-            else:
-                console.print("  No profiles directory found")
-            return False
-        
-        # Load profile configuration
-        with open(profile_path, 'r') as f:
-            config_dict = json.load(f)
-        
-        console.print(f"✅ [green]Profile loaded: {config_dict.get('profile_name', profile_name)}[/green]")
-        console.print(f"📊 Components: {config_dict.get('components', {})}")
-        
-        # Initialize RAG pipeline
-        from rag.pipeline import RAGPipeline
-        from rag.config import RAGConfig
-        
-        # Create config from profile
-        config = RAGConfig(**{k: v for k, v in config_dict.items() 
-                             if k not in ["profile_name", "created_at", "version", "pipeline_type", "components"]})
-        
-        # Initialize pipeline
-        console.print("\n🔧 [bold]Initializing RAG pipeline...[/bold]")
-        pipeline = RAGPipeline(config)
-        
-        # Load the profile into the pipeline
-        load_result = pipeline.load_profile(str(profile_path))
-        if load_result["status"] != "success":
-            console.print(f"❌ [red]Failed to load profile: {load_result['error']}[/red]")
-            return False
-        
-        console.print("✅ [green]Pipeline initialized successfully![/green]")
-        
-        # Interactive query loop
-        console.print("\n🔍 [bold]Interactive Query Mode[/bold]")
-        console.print("Enter queries to test your RAG pipeline. Press Enter on an empty line to exit.")
-        console.print("=" * 60)
-        
-        query_count = 0
-        
-        while True:
-            try:
-                query = Prompt.ask("\nEnter a query (or press Enter to quit)")
-                
-                if not query.strip():
-                    console.print("👋 [blue]Exiting interactive mode...[/blue]")
-                    break
-                
-                query_count += 1
-                console.print(f"\n🔍 [bold]Query {query_count}: {query}[/bold]")
-                console.print("-" * 50)
-                
-                # Process the query
-                try:
-                    result = pipeline.query(query, k=config.top_k)
-                    
-                    if result.get("answer"):
-                        console.print(f"\n✅ [green]Answer:[/green]")
-                        console.print(Panel(result['answer'], title="Response", border_style="green"))
-                        
-                        # Show retrieved chunks info
-                        console.print(f"\n📊 [blue]Retrieved {result['retrieved_chunks']} chunks in {result['timing']['total_time']:.2f}s[/blue]")
-                        
-                        # Show sources if available
-                        if result.get('sources'):
-                            console.print(f"\n📚 [cyan]Sources:[/cyan]")
-                            for i, source in enumerate(result['sources'][:3], 1):  # Show top 3 sources
-                                score = source.get('score', 0)
-                                display = source.get('display', f"Chunk {source.get('chunk_id', 'N/A')}")
-                                console.print(f"   {i}. {display} – score: {score:.3f}")
-                    else:
-                        console.print("❌ [red]No answer generated[/red]")
-                
-                except Exception as e:
-                    console.print(f"❌ [red]Query failed: {e}[/red]")
-                    console.print("💡 [yellow]Try rephrasing your question or check the pipeline configuration[/yellow]")
-            
-            except KeyboardInterrupt:
-                console.print("\n👋 [blue]Exiting interactive mode...[/blue]")
-                break
-            except Exception as e:
-                console.print(f"❌ [red]Unexpected error: {e}[/red]")
-                break
-        
-        if query_count > 0:
-            console.print(f"\n✅ [green]Interactive session completed! Processed {query_count} queries.[/green]")
-        else:
-            console.print("\n👋 [blue]No queries processed.[/blue]")
-        
-        return True
-        
-    except Exception as e:
-        console.print(f"❌ [red]Error loading profile: {e}[/red]")
-        return False
 
 def main():
     while True:
@@ -446,41 +335,24 @@ def main():
             else:
                 break
         elif choice == "3":
-            console.print("[bold green]Starting RAG Profile Query...[/bold green]")
+            console.print("[bold green]Starting Multi-Tenant Inference Wizard...[/bold green]")
             
-            # List available profiles
-            profile_dir = Path.home() / ".humigence" / "rag_profiles"
-            if profile_dir.exists():
-                profiles = list(profile_dir.glob("*.json"))
-                if profiles:
-                    console.print("\n📚 [bold]Available RAG Profiles:[/bold]")
-                    for i, profile in enumerate(profiles, 1):
-                        console.print(f"  {i}. {profile.stem}")
-                    
-                    try:
-                        profile_choice = int(console.input("\n[bold blue]Select profile number[/bold blue]: "))
-                        if 1 <= profile_choice <= len(profiles):
-                            selected_profile = profiles[profile_choice - 1].stem
-                            success = query_rag_profile(selected_profile)
-                            
-                            if success:
-                                console.print("\n[bold green]✅ Query session completed![/bold green]")
-                            else:
-                                console.print("\n[bold red]❌ Query session failed![/bold red]")
-                        else:
-                            console.print("[bold red]❌ Invalid profile selection![/bold red]")
-                    except ValueError:
-                        console.print("[bold red]❌ Please enter a valid number![/bold red]")
-                else:
-                    console.print("[bold red]❌ No RAG profiles found![/bold red]")
-                    console.print("Please create a RAG pipeline first using option 2.")
-            else:
-                console.print("[bold red]❌ No RAG profiles directory found![/bold red]")
-                console.print("Please create a RAG pipeline first using option 2.")
+            try:
+                # Use the new zero-friction multi-tenant wizard
+                wizard = MultiTenantWizard()
+                wizard.run()
+                
+                console.print("\n[bold green]✅ Multi-Tenant Inference setup completed successfully![/bold green]")
+                
+            except KeyboardInterrupt:
+                console.print("\n[bold red]❌ Multi-Tenant Inference setup cancelled by user.[/bold red]")
+            except Exception as e:
+                console.print(f"\n[bold red]❌ Multi-Tenant Inference setup failed: {e}[/bold red]")
+                console.print(f"[dim]Error details: {str(e)}[/dim]")
             
-            # Ask if user wants to query another profile
-            console.print("\n[bold cyan]Query session completed![/bold cyan]")
-            if console.input("[bold blue]Query another RAG profile? (y/N)[/bold blue]: ").lower() in ['y', 'yes']:
+            # Ask if user wants to configure another inference setup
+            console.print("\n[bold cyan]Multi-Tenant Inference setup completed![/bold cyan]")
+            if console.input("[bold blue]Configure another inference setup? (y/N)[/bold blue]: ").lower() in ['y', 'yes']:
                 continue
             else:
                 break

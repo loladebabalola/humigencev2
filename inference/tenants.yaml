@@ -1,0 +1,21 @@
+tenants:
+  default:
+    name: "Default Tenant"
+    api_key: null
+    quota:
+      rps: 10
+      max_context: 131072
+      max_tokens_per_request: 2048
+      daily_limit: 10000
+    policy:
+      priority: 1
+      allow_streaming: true
+      max_concurrent_requests: 5
+      timeout_seconds: 30
+    created_at: 1704067200.0
+    last_accessed: 0.0
+    is_active: true
+metadata:
+  version: "1.0.0"
+  last_updated: 1704067200.0
+  total_tenants: 1

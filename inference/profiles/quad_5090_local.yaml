@@ -1,0 +1,42 @@
+# Quad RTX 5090 Local Inference Profile
+# Optimized for 4x RTX 5090 GPUs with 4 parallel slots each
+
+model: "/models/gpt-oss-20b/gpt-oss-20b.Q4_K_M.gguf"
+context_window: 131072
+
+instances:
+  - gpu: 0
+    port: 8080
+    parallel: 4
+  - gpu: 1
+    port: 8081
+    parallel: 4
+  - gpu: 2
+    port: 8082
+    parallel: 4
+  - gpu: 3
+    port: 8083
+    parallel: 4
+
+router:
+  entrypoint: "localhost:8000"
+  strategy: "tenant_sticky_then_latency"
+
+# Performance tuning
+performance:
+  batch_size: 1
+  max_sequence_length: 131072
+  use_flash_attention: true
+  use_cache: true
+
+# Monitoring
+monitoring:
+  health_check_interval: 30
+  metrics_collection: true
+  log_level: "INFO"
+
+# Resource limits
+limits:
+  max_concurrent_requests: 16
+  request_timeout: 60
+  memory_threshold: 0.9
