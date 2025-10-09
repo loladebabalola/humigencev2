@@ -245,10 +245,3 @@ results/
 # System files
 *.pid
 *.sock
-
-# RAG Pipeline - Vector Database
-chroma_db/
-
-
-
-

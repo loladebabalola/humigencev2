@@ -1,7 +1,6 @@
 # inference/gpu_detector.py
 
 import os
-import torch
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
@@ -35,6 +34,9 @@ class GPUDetector:
         self.gpus = []
         
         try:
+            # Lazy import to avoid CUDA warnings at startup
+            import torch
+            
             if not torch.cuda.is_available():
                 console.print("[yellow]⚠️ CUDA not available - no GPUs detected[/yellow]")
                 return 0, []

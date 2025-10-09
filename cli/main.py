@@ -123,12 +123,11 @@ def show_menu():
     print("[dim]A complete MLOps suite built for makers, teams, and enterprises.[/dim]\n")
     print("Options:")
     print("[bold green]1.[/bold green] Supervised Fine-Tuning 🚀")
-    print("[bold green]2.[/bold green] RAG Implementation 🔍")
-    print("[bold green]3.[/bold green] Multi-Tenant Inference 🖥️")
-    print("[bold yellow]4.[/bold yellow] EnterpriseGPT (coming soon)")
-    print("[bold yellow]5.[/bold yellow] Batch Inference (coming soon)")
-    print("[bold yellow]6.[/bold yellow] Context Length (coming soon)")
-    print("[bold red]7.[/bold red] Exit\n")
+    print("[bold blue]2.[/bold blue] RAG Implementation 🔍")
+    print("[bold magenta]3.[/bold magenta] Multi-Tenant Inference 🖥️")
+    print("[bold cyan]4.[/bold cyan] Build an AI Agent 🧩")
+    print("[bold yellow]5.[/bold yellow] Set Up An MCP Server ⚙️")
+    print("[bold red]6.[/bold red] Exit\n")
 
 def launch_training(config, training_mode, gpus):
     """Launch training based on the selected mode"""
@@ -261,6 +260,27 @@ def launch_training(config, training_mode, gpus):
     
     return False
 
+def run_agent_wizard():
+    """Launch the AI Agent Builder Wizard."""
+    console.print("[bold cyan]🧩 Launching AI Agent Builder Wizard...[/bold cyan]")
+    console.print("[dim]Building intelligent agents with custom capabilities[/dim]\n")
+    
+    try:
+        import subprocess
+        # Get the correct path to the agent wizard
+        agent_wizard_path = Path(__file__).parent.parent.parent / "cli" / "agent_wizard.py"
+        result = subprocess.run([sys.executable, str(agent_wizard_path)])
+        if result.returncode == 0:
+            console.print("[green]✅ Agent wizard completed successfully![/green]")
+        else:
+            console.print(f"[yellow]⚠️ Agent wizard exited with code: {result.returncode}[/yellow]")
+    except Exception as e:
+        console.print(f"[red]❌ Error launching agent wizard: {e}[/red]")
+
+def run_mcp_server_setup():
+    """Launch MCP Server setup (placeholder)."""
+    console.print("\n⚙️ MCP Server setup coming soon...")
+    console.print("[dim]This feature will be available in a future update.[/dim]")
 
 def main():
     while True:
@@ -356,12 +376,19 @@ def main():
                 continue
             else:
                 break
-        elif choice == "7":
+        elif choice == "4":
+            run_agent_wizard()
+            console.print("\n[bold cyan]Returning to main menu...[/bold cyan]")
+            time.sleep(2)
+        elif choice == "5":
+            run_mcp_server_setup()
+            time.sleep(2)
+        elif choice == "6":
             console.print("[bold red]Exiting Humigence CLI. Goodbye![/bold red]")
             time.sleep(1)
             sys.exit()
         else:
-            console.print("[yellow]⚠️ Option not implemented yet. Try 1, 2, 3, or 7.[/yellow]\n")
+            console.print("[yellow]⚠️ Invalid option. Please select 1-6.[/yellow]\n")
             time.sleep(1)
 
 if __name__ == "__main__":
